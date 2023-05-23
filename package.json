@@ -1,0 +1,20 @@
+{
+  "name": "public-html-panel",
+  "version": "1.0.0",
+  "description": "Node panel to manage public HTML",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsc && node ."
+  },
+  "keywords": [
+    "panel",
+    "server",
+    "html"
+  ],
+  "author": "Thiago Leal",
+  "license": "MIT",
+  "dependencies": {
+    "typescript": "^5.0.4"
+  }
+}
