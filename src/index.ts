@@ -1,7 +1,7 @@
-import { config } from "dotenv";
 import * as express from "express";
-import { dirname } from "./dirname";
+import { config } from "dotenv";
 import { resolve } from "path";
+import { dirname } from "./dirname";
 
 config();
 
@@ -9,6 +9,7 @@ const port = parseInt(process.env.PORT || "8080");
 
 const app = express.default();
 
+app.use("/", express.static(resolve(dirname + "/../content")));
 app.use("/admin", express.static(resolve(dirname + "/../admin")));
 
 app.listen(port, () => {
