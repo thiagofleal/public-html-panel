@@ -1,0 +1,17 @@
+{
+  "source": "vendor/",
+  "dependencies": {
+    "small-reactive": {
+      "link": "https://github.com/thiagofleal/small-reactive",
+      "version": "dev",
+      "commit": "7b1a4ff6245dad13160b9056423f35f9a0f6abfa",
+      "commands": "sh dependencies.sh"
+    },
+    "small-reactive/forms": {
+      "link": "https://github.com/thiagofleal/small-reactive-forms",
+      "version": "master",
+      "commit": "b0cfab798f22ce00b1748fa25789a9acdb671873",
+      "commands": ""
+    }
+  }
+}
