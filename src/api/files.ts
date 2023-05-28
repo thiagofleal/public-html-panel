@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { resolve } from "path";
-import { rootdir } from "../dirname";
+import { lookup } from "mime-types";
 import { readdir } from "fs/promises";
+import { rootdir } from "../dirname";
 import { splitPath } from "../utils/path";
 
 export const files = Router();
@@ -19,12 +20,13 @@ files.get("/", async (request, response) => {
       name: item.name,
       path: item.path,
       type: item.isFile()
-        ? "file"
+        ? lookup(item.name)
         : item.isDirectory()
           ? "dir"
           : "unknown"
     })));
   } catch (e) {
+    console.error(e);
     response.status(500).send({
       message: "Internal error"
     });
