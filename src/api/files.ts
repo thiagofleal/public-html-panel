@@ -2,13 +2,14 @@ import { Router } from "express";
 import { resolve } from "path";
 import { rootdir } from "../dirname";
 import { readdir } from "fs/promises";
+import { splitPath } from "../utils/path";
 
 export const files = Router();
 
 files.get("/", async (request, response) => {
   try {
     const relative = request.query.path as string || "";
-    const path = resolve(rootdir, "..", "content", ...relative.replace(/^../g, ".").split("/"));
+    const path = resolve(rootdir, "..", "content", ...splitPath(relative));
     const content = await readdir(path, {
       withFileTypes: true,
       recursive: true,
