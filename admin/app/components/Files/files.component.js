@@ -18,6 +18,30 @@ export class FilesComponent extends Component {
 
   constructor() {
     super();
+
+    this.useStyle(/*css*/`
+      .card {
+        margin: 1rem;
+        background-color: #fffa;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      ul {
+        padding: 1rem;
+      }
+
+      ul li {
+        list-style: none;
+        padding: .5rem;
+        display: block;
+        cursor: pointer;
+      }
+
+      li i.fa {
+        margin-right: .25rem;
+      }
+    `);
   }
 
   async updateContent() {
@@ -58,18 +82,57 @@ export class FilesComponent extends Component {
     await this.init();
   }
 
+  /**
+   * 
+   * @param {string} type File mime type 
+   * @returns {string}
+   */
+  getIcon(type) {
+    if (type === "return" ) return "fa-level-up";
+    if (type === "dir" ) return "fa-folder-open-o";
+    if (type.startsWith("text")) {
+      if ([
+        "text/html",
+        "text/css",
+        "text/javascript",
+        "text/typescript"
+      ].includes(type)) {
+        return "fa-file-code-o"
+      }
+      return "fa-file-text-o";
+    }
+    if (type.startsWith("image")) return "fa-file-image-o";
+    if (type.startsWith("video")) return "fa-file-video-o";
+    if (type.startsWith("audio")) return "fa-file-audio-o";
+    if (type.startsWith("application")) {
+      if (type === "application/pdf") return "fa-file-pdf-o";
+      if ([
+        "application/vnd.rar",
+        "application/x-tar",
+        "application/zip",
+        "application/x-7z-compressed"
+      ].includes(type)) {
+        return "fa-file-archive-o";
+      }
+    }
+    return "fa-file-o";
+  }
+
   render() {
     return /*html*/`
-      <div>${ this.path }</div>
-      <ul>
+      <div class="card">
+        <div>${ this.path }/</div>
+        <ul>
         ${
           this.content.map((file, index) => /*html*/`
             <li event:click="this.onClick(${ index })">
+              <i class="fa ${ this.getIcon(file.type) }"></i>
               ${ file.name }
             </li>
           `).join("")
         }
-      </ul>
+        </ul>
+      </div>
     `;
   }
 }
