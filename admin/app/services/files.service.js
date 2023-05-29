@@ -18,4 +18,25 @@ export class FilesService extends Service {
     }
     return await this.request.get(`/api/files?path=${ path }`);
   }
+
+  async newFile(path, name) {
+    if (path === undefined) {
+      path = "";
+    }
+    return await this.request.post(`/api/files/file`, { path, name });
+  }
+
+  async newFolder(path, name) {
+    if (path === undefined) {
+      path = "";
+    }
+    return await this.request.post(`/api/files/folder`, { path, name });
+  }
+
+  async rename(path, oldName, newName) {
+    if (path === undefined) {
+      path = "";
+    }
+    return await this.request.put(`/api/files/rename`, { path, old: oldName, new: newName });
+  }
 }

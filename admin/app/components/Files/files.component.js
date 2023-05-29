@@ -1,6 +1,7 @@
 import { fromEventSource, map, retry } from "../../../vendor/small-reactive/rx.js";
 import { Component } from "../../../vendor/small-reactive/src/core/component.js";
 import { FilesService } from "../../services/files.service.js";
+import { FilesHeaderComponent } from "./header.component.js";
 
 export class FilesComponent extends Component {
   /**
@@ -17,7 +18,14 @@ export class FilesComponent extends Component {
   }
 
   constructor() {
-    super();
+    super({
+      children: [
+        {
+          selector: "files-header",
+          component: FilesHeaderComponent
+        }
+      ]
+    });
 
     this.useStyle(/*css*/`
       .card {
@@ -33,9 +41,15 @@ export class FilesComponent extends Component {
 
       ul li {
         list-style: none;
-        padding: .5rem;
+        padding: .5rem 1rem;
         display: block;
         cursor: pointer;
+        border-radius: .5rem;
+      }
+
+      ul li:hover {
+        background-color: #0f0fcf0a;
+        border: 1px solid #ccf;
       }
 
       li i.fa {
@@ -69,6 +83,46 @@ export class FilesComponent extends Component {
     this.subscription.unsubscribe();
   }
 
+  /**
+   * 
+   * @param {string?} type File mime type
+   * @returns {string}
+   */
+  getIcon(type) {
+    if (type) {
+
+      if (type === "return" ) return "fa-level-up";
+      if (type === "dir" ) return "fa-folder-open-o";
+      if (type.startsWith("text")) {
+        if ([
+          "text/html",
+          "text/css",
+          "text/javascript",
+          "text/typescript"
+        ].includes(type)) {
+          return "fa-file-code-o"
+        }
+        return "fa-file-text-o";
+      }
+      if (type.startsWith("image")) return "fa-file-image-o";
+      if (type.startsWith("video")) return "fa-file-video-o";
+      if (type.startsWith("audio")) return "fa-file-audio-o";
+      if (type.startsWith("application")) {
+        if (type === "application/pdf") return "fa-file-pdf-o";
+        if ([
+          "application/vnd.rar",
+          "application/x-tar",
+          "application/zip",
+          "application/x-7z-compressed"
+        ].includes(type)) {
+          return "fa-file-archive-o";
+        }
+      }
+    }
+    return "fa-file-o";
+  }
+
+
   async onClick(index) {
     const item = this.content[index];
 
@@ -82,50 +136,20 @@ export class FilesComponent extends Component {
     await this.init();
   }
 
-  /**
-   * 
-   * @param {string} type File mime type 
-   * @returns {string}
-   */
-  getIcon(type) {
-    if (type === "return" ) return "fa-level-up";
-    if (type === "dir" ) return "fa-folder-open-o";
-    if (type.startsWith("text")) {
-      if ([
-        "text/html",
-        "text/css",
-        "text/javascript",
-        "text/typescript"
-      ].includes(type)) {
-        return "fa-file-code-o"
-      }
-      return "fa-file-text-o";
-    }
-    if (type.startsWith("image")) return "fa-file-image-o";
-    if (type.startsWith("video")) return "fa-file-video-o";
-    if (type.startsWith("audio")) return "fa-file-audio-o";
-    if (type.startsWith("application")) {
-      if (type === "application/pdf") return "fa-file-pdf-o";
-      if ([
-        "application/vnd.rar",
-        "application/x-tar",
-        "application/zip",
-        "application/x-7z-compressed"
-      ].includes(type)) {
-        return "fa-file-archive-o";
-      }
-    }
-    return "fa-file-o";
+  onContext(index, event) {
+    event.preventDefault();
+    const item = this.content[index];
   }
 
   render() {
     return /*html*/`
       <div class="card">
-        <div>${ this.path }/</div>
+        <files-header path="${ this.path }/"></files-header>
         <ul>
         ${
           this.content.map((file, index) => /*html*/`
-            <li event:click="this.onClick(${ index })">
+            <li event:click="this.onClick(${ index })"
+            event:contextmenu="this.onContext(${ index }, event)">
               <i class="fa ${ this.getIcon(file.type) }"></i>
               ${ file.name }
             </li>

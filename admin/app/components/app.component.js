@@ -23,7 +23,7 @@ export class AppComponent extends Component {
         height: 100vh;
         margin: 0;
         padding: 0;
-        background-color: #cfcfcfaf;
+        background-color: #ecececaf;
       }
     `);
   }
