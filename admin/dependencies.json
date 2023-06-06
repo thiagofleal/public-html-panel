@@ -4,8 +4,8 @@
     "small-reactive": {
       "link": "https://github.com/thiagofleal/small-reactive",
       "version": "dev",
-      "commit": "7b1a4ff6245dad13160b9056423f35f9a0f6abfa",
-      "commands": "sh dependencies.sh"
+      "commit": "fe05dc897a6595e71ffd77bf0653a155c073ff3a",
+      "commands": ""
     },
     "small-reactive/forms": {
       "link": "https://github.com/thiagofleal/small-reactive-forms",
