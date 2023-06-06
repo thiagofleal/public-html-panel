@@ -1,5 +1,6 @@
 import { fromEventSource, map, retry } from "../../../vendor/small-reactive/rx.js";
 import { Component } from "../../../vendor/small-reactive/src/core/component.js";
+import { FormDirective } from "../../../vendor/small-reactive/forms/forms.js";
 import { FilesService } from "../../services/files.service.js";
 import { FilesHeaderComponent } from "./header.component.js";
 
@@ -10,8 +11,12 @@ export class FilesComponent extends Component {
   filesService = this.inject(FilesService);
   subscription = null;
 
-  content = [];
   #path = [];
+  #old = "";
+  #bodyFunction = () => {};
+
+  content = [];
+  edit = "";
 
   get path() {
     return this.#path.join("/");
@@ -24,7 +29,10 @@ export class FilesComponent extends Component {
           selector: "files-header",
           component: FilesHeaderComponent
         }
-      ]
+      ],
+      directives: {
+        "model": FormDirective
+      }
     });
 
     this.useStyle(/*css*/`
@@ -123,22 +131,50 @@ export class FilesComponent extends Component {
   }
 
 
-  async onClick(index) {
+  async onClick(event, index) {
     const item = this.content[index];
 
-    if (item.type === "return") {
-      this.#path = this.#path.slice(0, -1);
+    if (item.edit) {
+      event.stopPropagation();
+    } else if (!this.edit) {
+      if (item.type === "return") {
+        this.#path = this.#path.slice(0, -1);
+      }
+      if (item.type === "dir") {
+        this.#path = [ ...this.#path, item.name ];
+      }
+      this.subscription.unsubscribe();
+      await this.init();
     }
-    if (item.type === "dir") {
-      this.#path = [ ...this.#path, item.name ];
-    }
-    this.subscription.unsubscribe();
-    await this.init();
   }
 
   onContext(index, event) {
     event.preventDefault();
+    this.#bodyFunction();
+
     const item = this.content[index];
+
+    item.edit = true;
+    this.edit = item.name;
+    this.#old = item.name;
+
+    document.body.removeEventListener("click", this.#bodyFunction);
+
+    this.#bodyFunction = () => {
+      item.edit = false;
+      this.edit = "";
+    };
+    document.body.addEventListener("click", this.#bodyFunction);
+  }
+
+  async onKeyDown(event, element) {
+    if (event.key === "Enter") {
+      const value = element.value;
+
+      if (value) {
+        await this.filesService.rename(this.path, this.#old, value);
+      }
+    }
   }
 
   render() {
@@ -148,10 +184,15 @@ export class FilesComponent extends Component {
         <ul>
         ${
           this.content.map((file, index) => /*html*/`
-            <li event:click="this.onClick(${ index })"
+            <li event:click="this.onClick(event, ${ index })"
             event:contextmenu="this.onContext(${ index }, event)">
               <i class="fa ${ this.getIcon(file.type) }"></i>
-              ${ file.name }
+              ${
+                file.edit
+                  ? /*html*/`<input model="edit" ref="input"
+                    event:keydown="this.onKeyDown(event, element)">`
+                  : file.name
+              }
             </li>
           `).join("")
         }
