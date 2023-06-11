@@ -3,6 +3,7 @@ import { Component } from "../../../vendor/small-reactive/src/core/component.js"
 import { FormDirective } from "../../../vendor/small-reactive/forms/forms.js";
 import { FilesService } from "../../services/files.service.js";
 import { FilesHeaderComponent } from "./header.component.js";
+import { ContextComponent } from "./context.component.js";
 
 export class FilesComponent extends Component {
   /**
@@ -14,9 +15,14 @@ export class FilesComponent extends Component {
   #path = [];
   #old = "";
   #bodyFunction = () => {};
+  edit = "";
 
   content = [];
-  edit = "";
+  item = null;
+  menuOptions = [];
+  menuActive = false;
+  menuX = 0;
+  menuY = 0;
 
   get path() {
     return this.#path.join("/");
@@ -28,6 +34,10 @@ export class FilesComponent extends Component {
         {
           selector: "files-header",
           component: FilesHeaderComponent
+        },
+        {
+          selector: "context-menu",
+          component: ContextComponent
         }
       ],
       directives: {
@@ -55,7 +65,7 @@ export class FilesComponent extends Component {
         border-radius: .5rem;
       }
 
-      ul li:hover {
+      ul li.active, ul li:hover {
         background-color: #0f0fcf0a;
         border: 1px solid #ccf;
       }
@@ -136,7 +146,7 @@ export class FilesComponent extends Component {
 
     if (item.edit) {
       event.stopPropagation();
-    } else if (!this.edit) {
+    } else if (!this.item) {
       if (item.type === "return") {
         this.#path = this.#path.slice(0, -1);
       }
@@ -148,33 +158,80 @@ export class FilesComponent extends Component {
     }
   }
 
+  /**
+   * 
+   * @param {number} index 
+   * @param {MouseEvent} event 
+   */
   onContext(index, event) {
     event.preventDefault();
     this.#bodyFunction();
 
-    const item = this.content[index];
-
-    item.edit = true;
-    this.edit = item.name;
-    this.#old = item.name;
+    this.item = this.content[index];
+    this.item.active = true;
+    this.#old = this.item.name;
+    this.menuOptions = [
+      {
+        action: "REN",
+        value: "Rename"
+      },
+      {
+        action: "DEL",
+        value: "Delete"
+      }
+    ]
+    this.menuActive = true;
+    this.menuX = event.x;
+    this.menuY = event.y;
 
     document.body.removeEventListener("click", this.#bodyFunction);
 
     this.#bodyFunction = () => {
-      item.edit = false;
-      this.edit = "";
+      if (this.item) {
+        this.item.active = false;
+        this.item.edit = false;
+        this.item = null;
+      }
+      this.menuActive = false;
     };
     document.body.addEventListener("click", this.#bodyFunction);
   }
 
   async onKeyDown(event, element) {
+    if (event.key === "Escape") {
+      this.#bodyFunction();
+    }
     if (event.key === "Enter") {
       const value = element.value;
+      this.#bodyFunction();
 
       if (value) {
         await this.filesService.rename(this.path, this.#old, value);
       }
     }
+  }
+
+  onMenuSelect(event) {
+    if (event.detail && event.detail.index !== undefined) {
+      const { index } = event.detail;
+      const item = this.item;
+      const { action } = this.menuOptions[index];
+      
+      if (action === "REN") {
+        item.edit = true;
+        this.edit = item.name;
+
+        const input = this.element.querySelector("ul li input");
+
+        if (input) {
+          input.focus();
+          input.setSelectionRange(0, item.type !== "dir" && item.name.includes(".")
+            ? item.name.split(".").slice(0, -1).join(".").length
+            : item.name.length);
+        }
+      }
+    }
+    this.menuActive = false;
   }
 
   render() {
@@ -184,8 +241,10 @@ export class FilesComponent extends Component {
         <ul>
         ${
           this.content.map((file, index) => /*html*/`
-            <li event:click="this.onClick(event, ${ index })"
-            event:contextmenu="this.onContext(${ index }, event)">
+            <li class="${ file.active ? "active" : "" }"
+              event:click="this.onClick(event, ${ index })"
+              event:contextmenu="this.onContext(${ index }, event)"
+            >
               <i class="fa ${ this.getIcon(file.type) }"></i>
               ${
                 file.edit
@@ -198,6 +257,13 @@ export class FilesComponent extends Component {
         }
         </ul>
       </div>
+      <context-menu
+        bind:options="this.menuOptions"
+        bind:active="this.menuActive"
+        bind:x="this.menuX"
+        bind:y="this.menuY"
+        event:select="this.onMenuSelect(event)"
+      ></context-menu>
     `;
   }
 }
