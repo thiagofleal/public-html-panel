@@ -2,7 +2,7 @@ import { Router, json } from "express";
 import { resolve } from "path";
 import { lookup } from "mime-types";
 import { v4 as uuid } from "uuid";
-import { mkdir, readdir, rename, writeFile } from "fs/promises";
+import { mkdir, readdir, rename, rm, writeFile } from "fs/promises";
 import { splitPath } from "../utils/path";
 import { CONTENT_PATH } from "..";
 
@@ -74,6 +74,26 @@ files.post("/folder", async (request, response) => {
   }
 });
 
+files.put("/edit", async (request, response) => {
+  try {
+    const relative = request.body.path as string || "";
+    const data = request.body.data as string || "";
+    const path = resolve(CONTENT_PATH, ...splitPath(relative));
+    const name = resolve(path, request.body.name as string || "");
+
+    await writeFile(name, data);
+
+    response.status(200).send({
+      message: "Path successfully edited"
+    });
+  } catch (e) {
+    console.error(e);
+    response.status(500).send({
+      message: "Internal error"
+    });
+  }
+});
+
 files.put("/rename", async (request, response) => {
   try {
     const relative = request.body.path as string || "";
@@ -85,6 +105,25 @@ files.put("/rename", async (request, response) => {
 
     response.status(200).send({
       message: "Path successfully renamed"
+    });
+  } catch (e) {
+    console.error(e);
+    response.status(500).send({
+      message: "Internal error"
+    });
+  }
+});
+
+files.delete("/delete", async (request, response) => {
+  try {
+    const relative = request.query.path as string || "";
+    const path = resolve(CONTENT_PATH, ...splitPath(relative));
+    const name = resolve(path, request.query.name as string || "");
+
+    await rm(name, { force: true, recursive: true });
+
+    response.status(200).send({
+      message: "Path successfully deleted"
     });
   } catch (e) {
     console.error(e);
