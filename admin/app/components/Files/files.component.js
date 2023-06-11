@@ -82,8 +82,11 @@ export class FilesComponent extends Component {
       li i.fa.code {
         color: #09c;
       }
+      li i.fa.code.markup {
+        color: #d73;
+      }
       li i.fa.asset {
-        color: #3a3;
+        color: #3a9;
       }
       li i.fa.text {
         color: #a33;
@@ -127,15 +130,13 @@ export class FilesComponent extends Component {
   getIcon(type) {
     if (type) {
       if (type === "return" ) return "fa-level-up return";
-      if (type === "dir" ) return "fa-folder-open-o folder";
+      if (type === "dir" ) return "fa-folder-open folder";
       if (type.startsWith("text")) {
         if ([
           "text/html",
-          "text/css",
-          "text/javascript",
-          "text/typescript"
+          "text/css"
         ].includes(type)) {
-          return "fa-file-code-o code"
+          return "fa-file-code-o code markup"
         }
         return "fa-file-text-o text";
       }
