@@ -1,7 +1,11 @@
 import { Component } from "../../../vendor/small-reactive/core.js";
+import { Subscription } from "../../../vendor/small-reactive/rx.js";
 import { FilesService } from "../../services/files.service.js";
 
 export class FilesHeaderComponent extends Component {
+  #subscription = new Subscription();
+  #uploadRef = null;
+
   /**
    * @type { FilesService }
    */
@@ -30,7 +34,7 @@ export class FilesHeaderComponent extends Component {
         background-color: #fffa;
       }
 
-      .create button {
+      .create button, .upload button {
         background: transparent;
         border: none;
         cursor: pointer;
@@ -39,11 +43,30 @@ export class FilesHeaderComponent extends Component {
         border: 1px solid transparent;
       }
 
-      .create button:hover {
-        border: 1px solid #55cc;
-        color: #55cc;
+      .create button:nth-child(1):hover {
+        border: 1px solid #599c;
+        color: #599c;
+      }
+      .create button:nth-child(2):hover {
+        border: 1px solid #a90e;
+        color: #a90e;
+      }
+
+      .upload button:hover {
+        border: 1px solid #05cc;
+        color: #05cc;
       }
     `);
+  }
+
+  onConnect() {
+    this.#subscription.add(
+      this.observeChildren("upload").subscribe(element => this.#uploadRef = element[0])
+    );
+  }
+
+  onDisconnect() {
+    this.#subscription.unsubscribe();
   }
 
   async createFile() {
@@ -52,6 +75,14 @@ export class FilesHeaderComponent extends Component {
 
   async createFolder() {
     await this.filesService.newFolder(this.path);
+  }
+
+  openUpload() {
+    console.log(this.#uploadRef);
+
+    if (this.#uploadRef) {
+      this.#uploadRef.click();
+    }
   }
 
   render() {
@@ -65,6 +96,13 @@ export class FilesHeaderComponent extends Component {
           </button>
           <button event:click="this.createFolder()">
             <i class="fa fa-folder-open"></i>
+          </button>
+        </div>
+
+        <div class="upload">
+          <input hidden type="file" ref="upload" />
+          <button event:click="this.openUpload()">
+            <i class="fa fa-upload"></i>
           </button>
         </div>
       </div>

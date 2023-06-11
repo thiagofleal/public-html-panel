@@ -37,6 +37,10 @@ export class ContextComponent extends Component {
       .context ul>li:hover {
         background-color: #00f2;
       }
+      .context ul>li .fa {
+        font-size: .75rem;
+        margin-right: .45rem;
+      }
     `);
   }
 
@@ -58,7 +62,8 @@ export class ContextComponent extends Component {
           ${
             this.options.map((e, i) => /*html*/`
               <li event:click="this.onClick(event, ${ i })">
-                ${ e.value }
+                <i class="fa ${ e.icon }" aria-hidden="true"></i>
+                <span>${ e.value }</span>
               </li>
             `).join("")
           }

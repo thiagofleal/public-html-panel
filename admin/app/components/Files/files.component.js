@@ -4,6 +4,7 @@ import { FormDirective } from "../../../vendor/small-reactive/forms/forms.js";
 import { FilesService } from "../../services/files.service.js";
 import { FilesHeaderComponent } from "./header.component.js";
 import { ContextComponent } from "./context.component.js";
+import { download } from "../../utils/utils.js"
 
 export class FilesComponent extends Component {
   /**
@@ -131,6 +132,11 @@ export class FilesComponent extends Component {
     this.subscription.unsubscribe();
   }
 
+  getFilePath(name) {
+    const url = window.location.href.replace("/admin", "");
+    return url + (this.path ? this.path + "/" : "") + name;
+  }
+
   /**
    * 
    * @param {string?} type File mime type
@@ -191,8 +197,7 @@ export class FilesComponent extends Component {
         if (item.type === "dir") {
           this.#path = [ ...this.#path, item.name ];
         } else {
-          const url = window.location.href.replace("/admin", "");
-          window.open(url + (this.path ? this.path + "/" : "") + item.name, '_blank').focus();
+          window.open(this.getFilePath(item.name), '_blank').focus();
         }
         this.subscription.unsubscribe();
         await this.init();
@@ -217,20 +222,34 @@ export class FilesComponent extends Component {
       this.menuOptions = [
         {
           action: "RET",
-          value: "Return"
+          value: "Return",
+          icon: "fa-level-up"
         }
       ];
     } else {
       this.menuOptions = [
         {
           action: "REN",
-          value: "Rename"
+          value: "Rename",
+          icon: "fa-font"
         },
         {
           action: "DEL",
-          value: "Delete"
+          value: "Delete",
+          icon: "fa-trash"
         }
-      ]
+      ];
+
+      if (this.item.type !== "dir") {
+        this.menuOptions = [
+          {
+            action: "DOWN",
+            value: "Download",
+            icon: "fa-download"
+          },
+          ...this.menuOptions
+        ];
+      }
     }
     this.menuActive = true;
     this.menuX = event.x;
@@ -288,6 +307,10 @@ export class FilesComponent extends Component {
       }
       if (action === "RET") {
         this.returnPath();
+        this.#bodyFunction();
+      }
+      if (action === "DOWN") {
+        download(this.getFilePath(item.name), item.name);
         this.#bodyFunction();
       }
     }
