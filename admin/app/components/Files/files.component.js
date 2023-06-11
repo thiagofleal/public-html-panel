@@ -100,8 +100,17 @@ export class FilesComponent extends Component {
   async updateContent() {
     this.content = await this.filesService.get(this.path);
 
+    this.content.sort(
+      (a, b) => [a.type, b.type].includes("return")
+        ? a.type === "return" ? -1 : 1
+        : a.type !== b.type && [a.type, b.type].includes("dir")
+          ? a.type === "dir" ? -1 : 1
+          : a.name.localeCompare(b.name)
+    );
     if (this.path.length) {
       this.content = [{ type: "return", name: ".." }, ...this.content];
+    } else {
+      this.content = this.content.slice();
     }
   }
 
