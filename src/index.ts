@@ -7,10 +7,12 @@ import { events } from "./events";
 
 config();
 
+export const CONTENT_PATH = process.env.CONTENT_PATH || resolve(rootdir, "..", "content");
+
 const port = parseInt(process.env.PORT || "8080");
 const app = express.default();
 
-app.use("/", express.static(resolve(rootdir, "..", "content")));
+app.use("/", express.static(CONTENT_PATH));
 app.use("/admin", express.static(resolve(rootdir, "..", "admin")));
 app.use("/api", router);
 app.use("/events", events);

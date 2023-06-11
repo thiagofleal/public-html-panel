@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { existsSync, watch } from "fs";
 import { resolve } from "path";
-import { rootdir } from "../dirname";
 import { splitPath } from "../utils/path";
+import { CONTENT_PATH } from "..";
 
 export const directory = Router();
 
@@ -11,7 +11,7 @@ directory.get("/", async (request, response) => {
   response.flushHeaders();
 
   const relative = request.query.path as string || "";
-  const path = resolve(rootdir, "..", "content", ...splitPath(relative));
+  const path = resolve(CONTENT_PATH, ...splitPath(relative));
 
   if (existsSync(path)) {
     const watcher = watch(path, {
