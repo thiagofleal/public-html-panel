@@ -15,7 +15,7 @@ export class FilesComponent extends Component {
   #path = [];
   #old = "";
   #bodyFunction = () => {};
-  edit = "";
+  rename = "";
 
   content = [];
   item = null;
@@ -73,6 +73,24 @@ export class FilesComponent extends Component {
       li i.fa {
         margin-right: .25rem;
       }
+      li i.fa.return {
+        color: #5a7;
+      }
+      li i.fa.folder {
+        color: #ca0;
+      }
+      li i.fa.code {
+        color: #09c;
+      }
+      li i.fa.asset {
+        color: #3a3;
+      }
+      li i.fa.text {
+        color: #a33;
+      }
+      li i.fa.app {
+        color: #a70;
+      }
     `);
   }
 
@@ -108,9 +126,8 @@ export class FilesComponent extends Component {
    */
   getIcon(type) {
     if (type) {
-
-      if (type === "return" ) return "fa-level-up";
-      if (type === "dir" ) return "fa-folder-open-o";
+      if (type === "return" ) return "fa-level-up return";
+      if (type === "dir" ) return "fa-folder-open-o folder";
       if (type.startsWith("text")) {
         if ([
           "text/html",
@@ -118,13 +135,13 @@ export class FilesComponent extends Component {
           "text/javascript",
           "text/typescript"
         ].includes(type)) {
-          return "fa-file-code-o"
+          return "fa-file-code-o code"
         }
-        return "fa-file-text-o";
+        return "fa-file-text-o text";
       }
-      if (type.startsWith("image")) return "fa-file-image-o";
-      if (type.startsWith("video")) return "fa-file-video-o";
-      if (type.startsWith("audio")) return "fa-file-audio-o";
+      if (type.startsWith("image")) return "fa-file-image-o asset";
+      if (type.startsWith("video")) return "fa-file-video-o asset";
+      if (type.startsWith("audio")) return "fa-file-audio-o asset";
       if (type.startsWith("application")) {
         if (type === "application/pdf") return "fa-file-pdf-o";
         if ([
@@ -133,28 +150,43 @@ export class FilesComponent extends Component {
           "application/zip",
           "application/x-7z-compressed"
         ].includes(type)) {
-          return "fa-file-archive-o";
+          return "fa-file-archive-o app";
+        }
+        if ([
+          "application/javascript",
+          "application/x-httpd-php"
+        ].includes(type)) {
+          return "fa-file-code-o code";
         }
       }
     }
     return "fa-file-o";
   }
 
+  async returnPath() {
+    this.#path = this.#path.slice(0, -1);
+    this.subscription.unsubscribe();
+    await this.init();
+  }
 
   async onClick(event, index) {
     const item = this.content[index];
 
-    if (item.edit) {
+    if (item.rename) {
       event.stopPropagation();
     } else if (!this.item) {
       if (item.type === "return") {
-        this.#path = this.#path.slice(0, -1);
+        await this.returnPath();
+      } else {
+        if (item.type === "dir") {
+          this.#path = [ ...this.#path, item.name ];
+        } else {
+          const url = window.location.href.replace("/admin", "");
+          window.open(url + (this.path ? this.path + "/" : "") + item.name, '_blank').focus();
+        }
+        this.subscription.unsubscribe();
+        await this.init();
       }
-      if (item.type === "dir") {
-        this.#path = [ ...this.#path, item.name ];
-      }
-      this.subscription.unsubscribe();
-      await this.init();
     }
   }
 
@@ -170,16 +202,26 @@ export class FilesComponent extends Component {
     this.item = this.content[index];
     this.item.active = true;
     this.#old = this.item.name;
-    this.menuOptions = [
-      {
-        action: "REN",
-        value: "Rename"
-      },
-      {
-        action: "DEL",
-        value: "Delete"
-      }
-    ]
+
+    if (this.item.type === "return") {
+      this.menuOptions = [
+        {
+          action: "RET",
+          value: "Return"
+        }
+      ];
+    } else {
+      this.menuOptions = [
+        {
+          action: "REN",
+          value: "Rename"
+        },
+        {
+          action: "DEL",
+          value: "Delete"
+        }
+      ]
+    }
     this.menuActive = true;
     this.menuX = event.x;
     this.menuY = event.y;
@@ -189,7 +231,7 @@ export class FilesComponent extends Component {
     this.#bodyFunction = () => {
       if (this.item) {
         this.item.active = false;
-        this.item.edit = false;
+        this.item.rename = false;
         this.item = null;
       }
       this.menuActive = false;
@@ -218,8 +260,8 @@ export class FilesComponent extends Component {
       const { action } = this.menuOptions[index];
       
       if (action === "REN") {
-        item.edit = true;
-        this.edit = item.name;
+        item.rename = true;
+        this.rename = item.name;
 
         const input = this.element.querySelector("ul li input");
 
@@ -229,6 +271,14 @@ export class FilesComponent extends Component {
             ? item.name.split(".").slice(0, -1).join(".").length
             : item.name.length);
         }
+      }
+      if (action === "DEL") {
+        this.filesService.delete(this.path, item.name);
+        this.#bodyFunction();
+      }
+      if (action === "RET") {
+        this.returnPath();
+        this.#bodyFunction();
       }
     }
     this.menuActive = false;
@@ -247,8 +297,8 @@ export class FilesComponent extends Component {
             >
               <i class="fa ${ this.getIcon(file.type) }"></i>
               ${
-                file.edit
-                  ? /*html*/`<input model="edit" ref="input"
+                file.rename
+                  ? /*html*/`<input model="rename" ref="input"
                     event:keydown="this.onKeyDown(event, element)">`
                   : file.name
               }
