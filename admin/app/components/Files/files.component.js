@@ -64,6 +64,7 @@ export class FilesComponent extends Component {
         display: block;
         cursor: pointer;
         border-radius: .5rem;
+        border: 1px solid #0000;
       }
 
       ul li.active, ul li:hover {
