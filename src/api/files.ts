@@ -1,14 +1,16 @@
-import { Router, json } from "express";
+import { Router, json, urlencoded } from "express";
 import { resolve } from "path";
 import { lookup } from "mime-types";
 import { v4 as uuid } from "uuid";
 import { mkdir, readdir, rename, rm, writeFile } from "fs/promises";
 import { splitPath } from "../utils/path";
 import { CONTENT_PATH } from "..";
+import { upload } from "../middlewares/upload";
 
 export const files = Router();
 
 files.use(json());
+files.use(urlencoded({ extended: true }));
 
 files.get("/", async (request, response) => {
   try {
@@ -125,6 +127,28 @@ files.delete("/delete", async (request, response) => {
     response.status(200).send({
       message: "Path successfully deleted"
     });
+  } catch (e) {
+    console.error(e);
+    response.status(500).send({
+      message: "Internal error"
+    });
+  }
+});
+
+files.post("/upload", async (request, response) => {
+  try {
+    await upload(request, response);
+
+    if (request.files === void 0) {
+      response.status(400).send({
+        error: "E_NO_FILE",
+        message: "File not sent"
+      })
+    } else {
+      response.status(200).send({
+        message: "File uploaded successfully"
+      })
+    }
   } catch (e) {
     console.error(e);
     response.status(500).send({
