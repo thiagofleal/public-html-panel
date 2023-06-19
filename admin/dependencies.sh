@@ -5,7 +5,7 @@ git clone https://github.com/thiagofleal/small-reactive small-reactive
 cd small-reactive
 git fetch https://github.com/thiagofleal/small-reactive && git checkout dev
 git pull https://github.com/thiagofleal/small-reactive dev
-git checkout 3b192ec797225f02b2b123c6da7f91b81b6999dc
+git checkout 785b36e3f398b0e6cddee987c2421b7e7ee3e438
 sh dependencies.sh
 cd ..
 cd vendor/
