@@ -9,11 +9,13 @@ export class Request extends HttpRequest {
         if (!opts) {
           opts = {};
         }
-        if (!opts.headers) {
-          opts.headers = {};
-        }
-        if (!opts.headers["content-type"]) {
-          opts.headers["content-type"] = "application/json";
+        if (!(body instanceof FormData)) {
+          if (!opts.headers) {
+            opts.headers = {};
+          }
+          if (!opts.headers["content-type"]) {
+            opts.headers["content-type"] = "application/json";
+          }
         }
       }
       return { url, method, body, opts };

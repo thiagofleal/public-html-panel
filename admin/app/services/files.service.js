@@ -53,4 +53,18 @@ export class FilesService extends Service {
     }
     return await this.request.put(`/api/files/edit`, { path, name, data });
   }
+
+  async uploadFiles(path, files) {
+    if (path === undefined) {
+      path = "";
+    }
+    const form = new FormData();
+
+    form.append("path", path);
+
+    for (let i = 0; i < files.length; i++) {
+      form.append("files", files[i]);
+    }
+    return await this.request.post("/api/files/upload", form);
+  }
 }
