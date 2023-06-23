@@ -1,4 +1,5 @@
 import * as express from "express";
+import cors from "cors";
 import { config } from "dotenv";
 import { resolve } from "path";
 import { rootdir } from "./dirname";
@@ -12,6 +13,7 @@ export const CONTENT_PATH = process.env.CONTENT_PATH || resolve(rootdir, "..", "
 const port = parseInt(process.env.PORT || "8080");
 const app = express.default();
 
+app.use(cors());
 app.use("/", express.static(CONTENT_PATH));
 app.use("/admin", express.static(resolve(rootdir, "..", "admin")));
 app.use("/api", router);
