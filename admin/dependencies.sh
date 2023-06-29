@@ -3,9 +3,9 @@ mkdir -p vendor/
 cd vendor/
 git clone https://github.com/thiagofleal/small-reactive small-reactive
 cd small-reactive
-git fetch https://github.com/thiagofleal/small-reactive && git checkout dev
-git pull https://github.com/thiagofleal/small-reactive dev
-git checkout 785b36e3f398b0e6cddee987c2421b7e7ee3e438
+git fetch https://github.com/thiagofleal/small-reactive && git checkout beta
+git pull https://github.com/thiagofleal/small-reactive beta
+git checkout 17a9afd013365211a51eea31a6cf61efa5f6e515
 sh dependencies.sh
 cd ..
 cd vendor/
