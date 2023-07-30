@@ -3,8 +3,8 @@
   "dependencies": {
     "small-reactive": {
       "link": "https://github.com/thiagofleal/small-reactive",
-      "version": "dev",
-      "commit": "6b50bfe708242f39213ae7ec488a200cde2e89b7",
+      "version": "beta",
+      "commit": "8f87e7b23044a4d90f3d33c7bc341254aaf35971",
       "commands": {
         "linux": "sh dependencies",
         "win32": "call dependencies"

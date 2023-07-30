@@ -4,9 +4,9 @@ CD vendor/
 CALL git clone https://github.com/thiagofleal/small-reactive small-reactive
 CD small-reactive
 CALL git fetch https://github.com/thiagofleal/small-reactive
-CALL git checkout dev
-CALL git pull https://github.com/thiagofleal/small-reactive dev
-CALL git checkout 6b50bfe708242f39213ae7ec488a200cde2e89b7
+CALL git checkout beta
+CALL git pull https://github.com/thiagofleal/small-reactive beta
+CALL git checkout 8f87e7b23044a4d90f3d33c7bc341254aaf35971
 call dependencies
 CD ..
 CD vendor/
