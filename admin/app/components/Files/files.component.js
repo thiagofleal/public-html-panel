@@ -1,4 +1,4 @@
-import { fromEventSource, map, retry } from "../../../vendor/small-reactive/rx.js";
+import { retry } from "../../../vendor/small-reactive/rx.js";
 import { Component } from "../../../vendor/small-reactive/src/core/component.js";
 import { FormDirective } from "../../../vendor/small-reactive/forms/forms.js";
 import { FilesService } from "../../services/files.service.js";
@@ -121,8 +121,8 @@ export class FilesComponent extends Component {
   }
 
   async init() {
-    this.subscription = fromEventSource(`/events/directory?path=${ this.path }`, [ "message" ])
-      .pipe(retry(1000), map(e => JSON.parse(e.data)))
+    this.subscription = this.filesService.observe(this.path)
+      .pipe(retry({ delay: 500 }))
       .subscribe(() => {
         this.updateContent();
       });
@@ -229,6 +229,11 @@ export class FilesComponent extends Component {
       ];
     } else {
       this.menuOptions = [
+        {
+          action: "MOV",
+          value: "Move",
+          icon: "fa-arrows"
+        },
         {
           action: "REN",
           value: "Rename",

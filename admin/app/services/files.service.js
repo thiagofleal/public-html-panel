@@ -1,4 +1,5 @@
 import { Service } from "../../vendor/small-reactive/core.js";
+import { fromEventSource, map } from "../../vendor/small-reactive/rx.js";
 import { Request } from "./request.service.js";
 
 export class FilesService extends Service {
@@ -66,5 +67,10 @@ export class FilesService extends Service {
       form.append("files", files[i]);
     }
     return await this.request.post("/api/files/upload", form);
+  }
+
+  observe(path) {
+    return fromEventSource(`/events/directory?path=${ path }`, [ "message" ])
+      .pipe(map(e => JSON.parse(e.data)))
   }
 }
