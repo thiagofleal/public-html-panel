@@ -1,12 +1,12 @@
-#!/usr/bin/env bash
+#!/bin/bash
 mkdir -p vendor/
 cd vendor/
 git clone https://github.com/thiagofleal/small-reactive small-reactive
 cd small-reactive
-git fetch https://github.com/thiagofleal/small-reactive && git checkout beta
-git pull https://github.com/thiagofleal/small-reactive beta
-git checkout 17a9afd013365211a51eea31a6cf61efa5f6e515
-sh dependencies.sh
+git fetch https://github.com/thiagofleal/small-reactive && git checkout dev
+git pull https://github.com/thiagofleal/small-reactive dev
+git checkout 6b50bfe708242f39213ae7ec488a200cde2e89b7
+sh dependencies
 cd ..
 cd vendor/
 git clone https://github.com/thiagofleal/small-reactive-forms small-reactive/forms
